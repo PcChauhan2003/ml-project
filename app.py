@@ -10,9 +10,9 @@ app = Flask(__name__)
 # ✅ Load NEW model (FIXED)
 try:
     model = load_model(
-        "cancer_model_v3.keras",   # 🔥 FIXED HERE
-        compile=False,
-        custom_objects={"InputLayer": InputLayer}
+    "cancer_model_v2.h5",
+    compile=False,
+    custom_objects={"InputLayer": InputLayer}
     )
     print("✅ Model loaded successfully")
 except Exception as e:
