@@ -2,13 +2,17 @@ from flask import Flask, render_template, request
 import cv2
 import numpy as np
 from tensorflow.keras.models import load_model
+from tensorflow.keras.layers import InputLayer
 import os
 
 app = Flask(__name__)
 
-# ✅ Load model (FIXED)
-model = load_model("cancer_model.h5", compile=False)
-
+# ✅ FIXED MODEL LOADING (IMPORTANT)
+model = load_model(
+    "cancer_model.h5",
+    compile=False,
+    custom_objects={"InputLayer": InputLayer}
+)
 
 @app.route('/')
 def home():
@@ -21,8 +25,10 @@ def predict():
 
     # ❌ No file uploaded
     if file is None or file.filename == "":
-        return render_template('index.html',
-                               warning="⚠️ Please upload an image")
+        return render_template(
+            'index.html',
+            warning="⚠️ Please upload an image"
+        )
 
     # Read image
     img_array = np.frombuffer(file.read(), np.uint8)
@@ -30,8 +36,10 @@ def predict():
 
     # ❌ Invalid image
     if img is None:
-        return render_template('index.html',
-                               warning="⚠️ Invalid image file")
+        return render_template(
+            'index.html',
+            warning="⚠️ Invalid image file"
+        )
 
     # 🔍 Smart validation
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -69,9 +77,9 @@ def predict():
     )
 
 
-# ✅ IMPORTANT FOR RENDER (FINAL FIX)
+# ✅ RENDER DEPLOY FIX (PORT)
 if __name__ == "__main__":
     print("🚀 Starting Flask server...")
 
-    port = int(os.environ.get("PORT", 10000))  # 🔥 VERY IMPORTANT
+    port = int(os.environ.get("PORT", 10000))  # VERY IMPORTANT
     app.run(host="0.0.0.0", port=port)
