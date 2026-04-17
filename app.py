@@ -10,7 +10,7 @@ app = Flask(__name__)
 # ✅ Load NEW model (FIXED)
 try:
     model = load_model(
-        "cancer_model_v2.h5",   # 🔥 FIXED HERE
+        "cancer_model_v3.keras",   # 🔥 FIXED HERE
         compile=False,
         custom_objects={"InputLayer": InputLayer}
     )
