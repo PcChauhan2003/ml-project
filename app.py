@@ -7,20 +7,30 @@ import os
 
 app = Flask(__name__)
 
-# ✅ FIXED MODEL LOADING (IMPORTANT)
-model = load_model(
-    "cancer_model.h5",
-    compile=False,
-    custom_objects={"InputLayer": InputLayer}
-)
+# ✅ Load model safely (FIXED for compatibility)
+try:
+    model = load_model(
+        "cancer_model.h5",
+        compile=False,
+        custom_objects={"InputLayer": InputLayer}
+    )
+    print("✅ Model loaded successfully")
+except Exception as e:
+    print("❌ Model loading failed:", e)
+    model = None
 
+# ✅ Home route
 @app.route('/')
 def home():
     return render_template('index.html')
 
 
+# ✅ Prediction route
 @app.route('/predict', methods=['POST'])
 def predict():
+    if model is None:
+        return "❌ Model not loaded properly"
+
     file = request.files.get('file')
 
     # ❌ No file uploaded
@@ -30,7 +40,7 @@ def predict():
             warning="⚠️ Please upload an image"
         )
 
-    # Read image
+    # ✅ Read image
     img_array = np.frombuffer(file.read(), np.uint8)
     img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
@@ -57,7 +67,10 @@ def predict():
     img = np.expand_dims(img, axis=0)
 
     # 🔮 Prediction
-    pred = model.predict(img)[0][0]
+    try:
+        pred = model.predict(img)[0][0]
+    except Exception as e:
+        return f"❌ Prediction error: {str(e)}"
 
     if pred > 0.5:
         result = "🛑 Cancer Detected"
@@ -77,8 +90,8 @@ def predict():
     )
 
 
-# ✅ RENDER DEPLOY FIX (PORT)
+# ✅ Render PORT binding (VERY IMPORTANT)
 if __name__ == "__main__":
-    import os
+    print("🚀 Starting Flask app...")
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
