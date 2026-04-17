@@ -2,17 +2,16 @@ from flask import Flask, render_template, request
 import cv2
 import numpy as np
 from tensorflow.keras.models import load_model
+import os
 
 app = Flask(__name__)
 
 # Load model
 model = load_model("cancer_model.h5")
 
-
 @app.route('/')
 def home():
     return render_template('index.html')
-
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -32,35 +31,24 @@ def predict():
         return render_template('index.html',
                                warning="⚠️ Invalid image file")
 
-    # ==========================
-    # 🔥 SMART VALIDATION (WARNING ONLY)
-    # ==========================
+    # 🔍 Smart validation
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
     variance = np.var(gray)
     edges = cv2.Canny(gray, 100, 200)
     edge_density = np.mean(edges)
 
     warning_msg = None
-
     if variance < 100 or edge_density > 120:
-        warning_msg = "⚠️ This may not be a medical image. Prediction may be inaccurate."
+        warning_msg = "⚠️ This may not be a medical image."
 
-    # ==========================
-    # ✅ PREPROCESS
-    # ==========================
+    # ✅ Preprocess
     img = cv2.resize(img, (64, 64))
     img = img.astype('float32') / 255.0
     img = np.expand_dims(img, axis=0)
 
-    # ==========================
-    # 🔮 PREDICT
-    # ==========================
+    # 🔮 Prediction
     pred = model.predict(img)[0][0]
 
-    # ==========================
-    # ✅ CORRECT PROBABILITY
-    # ==========================
     if pred > 0.5:
         result = "🛑 Cancer Detected"
         prob = round(pred * 100, 2)
@@ -78,8 +66,7 @@ def predict():
         warning=warning_msg
     )
 
-
-# 🌐 Run for mobile + network
+# ✅ IMPORTANT FOR RENDER
 if __name__ == "__main__":
-    print("🚀 Starting Flask server...")
-    app.run(host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
