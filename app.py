@@ -7,10 +7,10 @@ import os
 
 app = Flask(__name__)
 
-# ✅ Load model safely (FIXED for compatibility)
+# ✅ Load NEW model (FIXED)
 try:
     model = load_model(
-        "cancer_model.h5",
+        "cancer_model_v2.h5",   # 🔥 FIXED HERE
         compile=False,
         custom_objects={"InputLayer": InputLayer}
     )
@@ -19,13 +19,12 @@ except Exception as e:
     print("❌ Model loading failed:", e)
     model = None
 
-# ✅ Home route
+
 @app.route('/')
 def home():
     return render_template('index.html')
 
 
-# ✅ Prediction route
 @app.route('/predict', methods=['POST'])
 def predict():
     if model is None:
@@ -33,25 +32,22 @@ def predict():
 
     file = request.files.get('file')
 
-    # ❌ No file uploaded
     if file is None or file.filename == "":
         return render_template(
             'index.html',
             warning="⚠️ Please upload an image"
         )
 
-    # ✅ Read image
     img_array = np.frombuffer(file.read(), np.uint8)
     img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
-    # ❌ Invalid image
     if img is None:
         return render_template(
             'index.html',
             warning="⚠️ Invalid image file"
         )
 
-    # 🔍 Smart validation
+    # 🔍 Validation
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     variance = np.var(gray)
     edges = cv2.Canny(gray, 100, 200)
@@ -90,7 +86,7 @@ def predict():
     )
 
 
-# ✅ Render PORT binding (VERY IMPORTANT)
+# ✅ Render PORT fix
 if __name__ == "__main__":
     print("🚀 Starting Flask app...")
     port = int(os.environ.get("PORT", 10000))
