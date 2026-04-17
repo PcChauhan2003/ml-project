@@ -7,7 +7,7 @@ import os
 app = Flask(__name__)
 
 # Load model
-model = load_model("cancer_model.h5")
+model = load_model("cancer_model.h5", compile=False)
 
 @app.route('/')
 def home():
@@ -67,6 +67,8 @@ def predict():
     )
 
 # ✅ IMPORTANT FOR RENDER
+import os
+
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
+    port = int(os.environ.get("PORT", 8000))
     app.run(host="0.0.0.0", port=port)
