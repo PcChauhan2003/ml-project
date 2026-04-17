@@ -1,7 +1,5 @@
 flask
-opencv-python
-numpy
-tensorflow
-scikit-learn
-matplotlib
-seaborn
+numpy==1.23.5
+opencv-python-headless
+tensorflow==2.13.0
+gunicorn
