@@ -1,6 +1,7 @@
 flask
-numpy>=1.23.5
+numpy>=1.26.0
 opencv-python-headless
 tensorflow==2.16.1
+keras==3.14.0
 h5py
 gunicorn
