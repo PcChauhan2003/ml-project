@@ -6,18 +6,20 @@ import os
 
 app = Flask(__name__)
 
-# Load model
+# ✅ Load model (FIXED)
 model = load_model("cancer_model.h5", compile=False)
+
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
+
 @app.route('/predict', methods=['POST'])
 def predict():
     file = request.files.get('file')
 
-    # ❌ No file
+    # ❌ No file uploaded
     if file is None or file.filename == "":
         return render_template('index.html',
                                warning="⚠️ Please upload an image")
@@ -66,9 +68,10 @@ def predict():
         warning=warning_msg
     )
 
-# ✅ IMPORTANT FOR RENDER
-import os
 
+# ✅ IMPORTANT FOR RENDER (FINAL FIX)
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
+    print("🚀 Starting Flask server...")
+
+    port = int(os.environ.get("PORT", 10000))  # 🔥 VERY IMPORTANT
     app.run(host="0.0.0.0", port=port)
